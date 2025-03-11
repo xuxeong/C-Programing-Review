@@ -75,10 +75,10 @@ void calculate(char* eq){
             print_stack();
         }
         else if(eq[i] == '*' || eq[i] == '+' || eq[i] == '/' || eq[i] == '-'){
-            first = pop();
-            printf("Pop %d\n", first);
             second = pop();
             printf("Pop %d\n", second);
+            first = pop();
+            printf("Pop %d\n", first);
             print_stack();
             op_result = -1;
             if(eq[i] == '*')
