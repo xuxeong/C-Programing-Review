@@ -1,4 +1,4 @@
-//linked list (dummy head)
+//linked list (dummy head, static node array alocation)
 
 #define DEBUG
 #define _CRT_SECURE_NO_WARNINGS
@@ -6,16 +6,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAXNUM 10
+
 struct NODE{
     int key;
     struct NODE* next;
-};
+}node[MAXNUM];
 
+void InitNode();
 struct NODE* CreateNode();
 int InsertKey(struct NODE*, int);
 int DeleteKey(struct NODE*, int);
 void ScanList(struct NODE*);
-void FreeList(struct NODE*);
 
 int main(){
     int ret;
@@ -24,14 +26,16 @@ int main(){
     int length = sizeof(input_values)/sizeof(int);
 
     #ifdef DEBUG
-    printf("The lenght of input_values is: %d\n", length);
+    printf("The length of input_values is: %d\n", length);
     #endif
 
-    struct NODE* head = CreateNode();
-    head->next = NULL;
+    InitNode();
     #ifdef DEBUG
-    printf("Create a dummy haed node.\n");
+    printf("Create a dummy head node.\n");
     #endif
+    struct NODE* head = CreateNode();
+    head->key = -100;
+    head->next = NULL;
 
     for (int i = 0; i < length; i++){
         ret = InsertKey(head, input_values[i]);
@@ -39,40 +43,42 @@ int main(){
         #ifdef DEBUG
         if(ret == 0)
             printf("Succeeded to insert the key value: %d\n", input_values[i]);
-        else
+        else   
             printf("Failed to insert the key value: %d\n", input_values[i]);
         ScanList(head);
         #endif
     }
-
-    //delete
-    DeleteKey(head, 5);
-    DeleteKey(head, 10);
 
     #ifdef DEBUG
     printf("\nFinal Result\n");
     #endif
     ScanList(head);
 
-    FreeList(head);
-
     return 0;
+} 
+
+void InitNode(){
+    for (int i =0; i < MAXNUM; i++){
+        node[i].key = -1;
+        node[i].next = NULL;
+    }
 }
 
 struct NODE* CreateNode(){
-    struct NODE* new_node = NULL;
-    #ifdef DEBUG
-    printf("Return a new node address.\n");
-    #endif
-    new_node = (struct NODE*)malloc(sizeof(struct NODE));
+    for (int i = 0; i < MAXNUM; i++){
+        if(node[i].key == -1){
+            #ifdef DEBUG
+            printf("Return an unused node address: node[%d],\n", i);
+            #endif
+            return &node[i];
+        }
+    }
 
-    if(new_node == NULL){
-        printf("Memory is full.\n");
-        return NULL;
-    }
-    else{
-        return new_node;
-    }
+    #ifdef DEBUG
+    printf("Memory is full.\n");
+    #endif
+
+    return NULL;
 }
 
 int InsertKey(struct NODE* head, int value){
@@ -117,46 +123,6 @@ int InsertKey(struct NODE* head, int value){
     }
 }
 
-int DeleteKey(struct NODE* head, int value){
-    int delkey = -1;
-    #ifdef DEBUG
-    printf("\nDelete Value: %d\n", value);
-    #endif
-
-    struct NODE* ptr = head->next, *prev_ptr = head, *new_node = NULL;
-    while(ptr){
-        #ifdef DEBUG
-        printf("Key value of the current node: %d\n", ptr->key);
-        #endif
-        if(ptr->key > value){
-            #ifdef DEBUG
-            printf("The input key does not exist.\n");
-            #endif
-            return -1;
-        }
-        else if (ptr -> key == value)
-            break;
-        
-        prev_ptr = ptr;
-        ptr = ptr->next;
-    }
-
-    if(ptr == NULL){
-        #ifdef DEBUG
-        printf("The input key does not exist.\n");
-        #endif
-        return -1;
-    }
-
-    prev_ptr->next = ptr->next;
-    delkey = ptr->key;
-    free(ptr);
-    #ifdef DEBUG
-    printf("Freed a node for the key value: %d\n", delkey);
-    #endif
-    return 0;
-}
-
 void ScanList(struct NODE* head){
     printf("\n-----Start ScanList-----\n");
     struct NODE* ptr = head->next;
@@ -168,21 +134,4 @@ void ScanList(struct NODE* head){
         i++;
     }
     printf("-------End ScanList------\n\n");
-}
-
-void FreeList(struct NODE* head){
-    struct NODE* ptr = head, *tmp = NULL;
-    int i = 0;
-    while(ptr != NULL){
-        if(i == 0){
-            printf("Free the head node.\n");
-        }
-        else{
-            printf("Free the %d-th node.\n", i-1);
-        }
-        tmp = ptr;
-        ptr = ptr->next;
-        free(tmp);
-        i++;
-    }
 }
