@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 5
+
+typedef struct NODE {
+   int key;
+   struct NODE* next;
+}node;
+
+typedef struct {
+   node* front;
+   node* back;
+}queue;
+
+int is_full();
+int is_empty();
+int count = 0;
+void enqueue(queue*, int);
+int dequeue(queue*);
+void printQueue();
+void init(queue*);
+
+void init(queue* q) {
+   q->front = q->back = NULL;
+}
+
+int is_empty() {
+   if (count == 0)
+      return 1;
+   else
+      return 0;
+}
+
+int is_full() {
+   if (count == MAX)
+      return 1;
+   else
+      return 0;
+}
+
+void enqueue(queue* q, int val) {
+   node* new_node = (node*)malloc(sizeof(node));
+   if (count == 0)
+      q->front = q->back = new_node;
+   else
+      q->back->next = new_node;
+      q->back = new_node;
+   new_node->key = val;
+   new_node->next = NULL;
+   count++;
+}
+
+int dequeue(queue* q){
+   node* tmp = (node*)malloc(sizeof(node));
+   tmp = q->front;
+   count--;
+   
+   if (count == 0)
+      q->front = q->back = NULL;
+   else
+      q->front = tmp->next;
+   int val = tmp->key;
+   free(tmp);
+   return val;
+}
+
+void printQueue(queue* q) {
+   for (node* ptr = q->front; ptr != NULL; ptr = ptr->next) {
+      printf("%d ", ptr->key);
+   }
+   printf("\n\n");
+}
+
+void main() {
+   queue q;
+   init(&q);
+   
+   int input_values[] = { 1, 2, 24, 25, 3,41 };
+   int length = sizeof(input_values) / sizeof(int);
+
+   for (int i = 0; i < length; i++) {
+      if (is_full() != 1) {
+         enqueue(&q, input_values[i]);
+         printf("enqueue: %d", input_values[i]);
+      }
+      else
+         printf("queue is full\n");
+   }
+
+   printQueue(&q);
+
+   while (is_empty() != 1) {
+      printf("dequeue: %d\n", dequeue(&q));
+   }
+
+   printQueue(&q);
+}
